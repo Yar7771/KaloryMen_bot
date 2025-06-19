@@ -1,9 +1,8 @@
-
 import os
 import openai
 import base64
 from telegram import Update
-from telegram.ext import ApplicationBuilder, MessageHandler, CommandHandler, ContextTypes, filters
+from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, ContextTypes, filters
 
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
@@ -26,15 +25,18 @@ async def handle_photo(update: Update, context: ContextTypes.DEFAULT_TYPE):
         model="gpt-4o",
         messages=[
             {"role": "system", "content": "Ты нутрициолог. Определи калорийность по фото еды."},
-            {"role": "user", "content": [
-                {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{base64_image}"}}
-            ]}
+            {"role": "user", "content": {
+                "type": "image_url",
+                "image_url": {
+                    "url": f"data:image/jpeg;base64,{base64_image}"
+                }
+            }}
         ],
         max_tokens=500
     )
 
-    result = response.choices[0].message.content
-    await update.message.reply_text(result)
+    answer = response.choices[0].message.content
+    await update.message.reply_text(answer)
 
 if __name__ == "__main__":
     app = ApplicationBuilder().token(BOT_TOKEN).build()
